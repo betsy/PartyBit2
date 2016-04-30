@@ -22,6 +22,7 @@ public class Button {
 	
 	void setLooped(boolean looped){
 		this.looped=looped;
+		if(!looped) len = 500;
 	}
 
 	public void play() {
@@ -30,10 +31,13 @@ public class Button {
 //			Toolkit.getDefaultToolkit().beep();
 			on = !on;
 			lastTime = curTime;
-			if (!on)
-				clip.stop();
-			else {
-				clip.loop(Clip.LOOP_CONTINUOUSLY);
+			if(looped){
+				if (!on)
+					clip.stop();
+				else clip.loop(Clip.LOOP_CONTINUOUSLY);
+			}
+			else{
+				clip.loop(1);
 			}
 		}
 	}

@@ -6,8 +6,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -33,7 +34,7 @@ public class GUI extends JFrame implements KeyListener, ActionListener {
 
 	public static int numButtons = 6;
 	public int buttonRadius = 50;
-	public int mode = 1; // 1 = CALIBRATION, 2 = PLAY
+	public int mode = 0; // 1 = CALIBRATION, 2 = PLAY
 
 	public Button[] buttons = new Button[numButtons];
 
@@ -48,7 +49,7 @@ public class GUI extends JFrame implements KeyListener, ActionListener {
 
 		// Have the sample listener receive events from the controller
 		controller.addListener(listener);
-
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLayout(new FlowLayout()); // set the layout manager
 		setResizable(false);
 		setSize(500, 200);
@@ -68,9 +69,11 @@ public class GUI extends JFrame implements KeyListener, ActionListener {
 	}
 
 	public void getSounds(File[] files) {
+		System.out.println(Arrays.toString(files));
 		for (int i = 0; i < files.length; i++) {
 //			URL url = this.getClass().getClassLoader()
 //					.getResource(files[i]);
+			if(files[i]==null) continue;
 			AudioInputStream audioIn;
 			try {
 				System.out.println(files[i]);
@@ -79,6 +82,7 @@ public class GUI extends JFrame implements KeyListener, ActionListener {
 				Clip clip = AudioSystem.getClip();
 				clip.open(audioIn);
 				buttons[i] = new Button(null, clip);
+				if(i>2) buttons[i].setLooped(false);
 			} catch (UnsupportedAudioFileException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -110,7 +114,7 @@ public class GUI extends JFrame implements KeyListener, ActionListener {
 			int keyNum = e.getKeyCode() - '0';
 			if (keyNum > 0 && keyNum <= numButtons) {
 				Vector v = listener.getSinglePointedFingerPos();
-				if (v != null)
+				if (v != null && buttons[keyNum-1]!=null)
 					buttons[keyNum - 1].setPos(v);
 				System.out.println(keyNum);
 			}
@@ -126,13 +130,9 @@ public class GUI extends JFrame implements KeyListener, ActionListener {
 	public void keyTyped(KeyEvent e) {
 	}
 	
+	private List<JButton> select = new ArrayList<>(6);
+    public List<File> files = new ArrayList<>(6);
 	JLabel welcome;
-	JButton select1;
-	JButton select2;
-	JButton select3;
-	JButton select4;
-	JButton select5;
-	JButton select6;
 	JButton done;
 	File directory1, directory2, directory3, directory4, directory5,
 			directory6;
@@ -144,108 +144,95 @@ public class GUI extends JFrame implements KeyListener, ActionListener {
 	
 	void setPresses(){
 		welcome = new JLabel(
-				"<html>Welcome to LeapPad!<br>Hover your finger in the right position and press Enter to select.<br><br></html>"); // construct
+				"<html>Welcome to LeapPad!<br>Select the corresponding soundtrack.<br><br></html>"); // construct
 																																	// a
 																																	// JLabel
 		add(welcome, BorderLayout.PAGE_START);// add the label to the JFrame
 
 		chooser.setFileFilter(filter);
 
-		select1 = new JButton("Select track 1");
-		select1.addActionListener(this);
+		for (int i=0; i<6; i++)
+		{
+			select.add(new JButton("Select track "+(i+1)));
+			select.get(i).addActionListener(this);
+		}
 
-		select2 = new JButton("Select track 2");
-		select2.addActionListener(this);
-
-		select3 = new JButton("Select track 3");
-		select3.addActionListener(this);
-
-		select4 = new JButton("Select track 4");
-		select4.addActionListener(this);
-
-		select5 = new JButton("Select track 5");
-		select5.addActionListener(this);
-
-		select6 = new JButton("Select track 6");
-		select6.addActionListener(this);
-
-		press1.add(select1);
-		press1.add(Box.createHorizontalStrut(30));
-		press1.add(select2);
-		press1.add(Box.createHorizontalStrut(30));
-		press1.add(select3);
-		press1.add(Box.createHorizontalStrut(30));
-
-		press2.add(select4);
-		press2.add(Box.createHorizontalStrut(30));
-		press2.add(select5);
-		press2.add(Box.createHorizontalStrut(30));
-		press2.add(select6);
-		press2.add(Box.createHorizontalStrut(30));
+        for(int i=0; i<3; i++){
+            press1.add(select.get(i));
+            press1.add(Box.createHorizontalStrut(30));
+            press2.add(select.get(i+3));
+            press2.add(Box.createHorizontalStrut(30));
+        }
 		add(press1, BorderLayout.CENTER);
 		add(press2, BorderLayout.CENTER);
-
+		
 		done = new JButton("Done");
 		done.addActionListener(this);
 		add(done, BorderLayout.AFTER_LAST_LINE);
+		this.setFocusable(true);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if ((JButton) e.getSource() == select1) {
+		if ((JButton) e.getSource() == select.get(0)) {
 			int returnVal1 = chooser.showOpenDialog(this);
 			if (returnVal1 == JFileChooser.APPROVE_OPTION) {
-				fileChoosing(directory1);
+				directory1 = fileChoosing();
 			}
 		}
 
-		if ((JButton) e.getSource() == select2) {
+		if ((JButton) e.getSource() == select.get(1)) {
 			int returnVal2 = chooser.showOpenDialog(this);
 			if (returnVal2 == JFileChooser.APPROVE_OPTION) {
-				fileChoosing(directory2);
+				directory2 = fileChoosing();
 			}
 		}
 
-		if ((JButton) e.getSource() == select3) {
+		if ((JButton) e.getSource() == select.get(2)) {
 			int returnVal3 = chooser.showOpenDialog(this);
 			if (returnVal3 == JFileChooser.APPROVE_OPTION) {
-				fileChoosing(directory3);
+				directory3 = fileChoosing();
 			}
 		}
 
-		if ((JButton) e.getSource() == select4) {
+		if ((JButton) e.getSource() == select.get(3)) {
 			int returnVal4 = chooser.showOpenDialog(this);
 			if (returnVal4 == JFileChooser.APPROVE_OPTION) {
-				fileChoosing(directory4);
+				directory4 = fileChoosing();
 			}
 		}
 
-		if ((JButton) e.getSource() == select5) {
+		if ((JButton) e.getSource() == select.get(4)) {
 			int returnVal5 = chooser.showOpenDialog(this);
 			if (returnVal5 == JFileChooser.APPROVE_OPTION) {
-				fileChoosing(directory5);
+				directory5 = fileChoosing();
 			}
 		}
 
-		if ((JButton) e.getSource() == select6) {
+		if ((JButton) e.getSource() == select.get(5)) {
 			int returnVal6 = chooser.showOpenDialog(this);
 			if (returnVal6 == JFileChooser.APPROVE_OPTION) {
-				fileChoosing(directory6);
+				directory6 = fileChoosing();
 			}
 		}
 
 		if ((JButton) e.getSource() == done) {
-			removeAll();
+			JPanel newPanel = new JPanel();
+			getSounds(new File[] {directory1,directory2,directory3,directory4,directory5,directory6});
+			getContentPane().removeAll();
 			revalidate();
 			repaint();
-			getSounds(new File[] {directory1,directory2,directory3,directory4,directory5,directory6});
-//			mode=2;
+			welcome = new JLabel(
+					"<html>Welcome to LeapPad!<br>Hover your finger in the right position and press a number 1-6 to calibrate button position.<br><br></html>"); // construct
+			newPanel.add(welcome, BorderLayout.PAGE_START);// add the label to the JFrame
+			getContentPane().add(newPanel);
+			getContentPane().validate();
+			mode=1;
 		}
 	}
 	
-	public void fileChoosing(File file) {
+	public File fileChoosing() {
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		file = chooser.getSelectedFile();
-		System.out.println(file.getAbsolutePath());
+		return chooser.getSelectedFile();
 	}
 }
