@@ -4,7 +4,7 @@ import com.leapmotion.leap.Vector;
 
 public class Button {
 	public Vector pos;
-	int len = 200; // millis
+	int len = 300; // millis
 	long lastTime;
 	boolean on = false;
 	boolean looped = true;
@@ -22,7 +22,7 @@ public class Button {
 	
 	void setLooped(boolean looped){
 		this.looped=looped;
-		if(!looped) len = 500;
+		if(!looped) len = 300;
 	}
 
 	public void play() {
@@ -37,7 +37,7 @@ public class Button {
 				else clip.loop(Clip.LOOP_CONTINUOUSLY);
 			}
 			else{
-				clip.loop(1);
+				clip.loop(0);
 			}
 		}
 	}

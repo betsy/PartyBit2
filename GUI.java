@@ -33,7 +33,7 @@ public class GUI extends JFrame implements KeyListener, ActionListener {
 	public Controller controller = new Controller();
 
 	public static int numButtons = 6;
-	public int buttonRadius = 50;
+	public int buttonRadius = 70;
 	public int mode = 0; // 1 = CALIBRATION, 2 = PLAY
 
 	public Button[] buttons = new Button[numButtons];
@@ -82,7 +82,7 @@ public class GUI extends JFrame implements KeyListener, ActionListener {
 				Clip clip = AudioSystem.getClip();
 				clip.open(audioIn);
 				buttons[i] = new Button(null, clip);
-				if(i>2) buttons[i].setLooped(false);
+//				if(i>2) buttons[i].setLooped(false);
 			} catch (UnsupportedAudioFileException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
